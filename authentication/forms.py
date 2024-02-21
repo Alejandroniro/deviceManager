@@ -1,0 +1,21 @@
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
+
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(label="Email", required=True)
+
+    class Meta:
+        model = User
+        fields = ["email", "password1", "password2"]
+
+class CustomAuthenticationForm(AuthenticationForm):
+    username = forms.EmailField(
+        label="Email",
+        widget=forms.TextInput(attrs={'autofocus': True}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].required = False
