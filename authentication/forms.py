@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
+from .models import Device
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(label="Email", required=True)
@@ -10,12 +12,19 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ["email", "password1", "password2"]
 
+
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(
         label="Email",
-        widget=forms.TextInput(attrs={'autofocus': True}),
+        widget=forms.TextInput(attrs={"autofocus": True}),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].required = False
+        self.fields["username"].required = False
+
+
+class DeviceCreationForm(forms.ModelForm):
+    class Meta:
+        model = Device
+        fields = ["name", "ip_address"]
