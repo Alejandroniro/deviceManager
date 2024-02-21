@@ -1,0 +1,33 @@
+<!-- base_generic.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Django App{% endblock %}</title>
+</head>
+<body>
+
+    <header>
+        <h1>{% block header %}Django App{% endblock %}</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="{% url 'Auth_list' %}">Auth List</a></li>
+            <li><a href="{% url 'Auth_add' %}">Add Auth</a></li>
+            <!-- Agrega más enlaces de navegación según sea necesario -->
+        </ul>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; {% now "Y" %} Django App</p>
+    </footer>
+
+</body>
+</html>

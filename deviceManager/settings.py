@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'app',
+    'auth',
+    'device',
+    'device_manager',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +52,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+LOGIN_URL = 'auth_login'  # Ajusta la URL de inicio de sesión según tu configuración
+LOGIN_REDIRECT_URL = 'auth_dashboard'  # Ajusta la URL de redirección después del inicio de sesión
 
 ROOT_URLCONF = 'deviceManager.urls'
 
@@ -73,10 +84,16 @@ WSGI_APPLICATION = 'deviceManager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+import os
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'deviceManager',
+        'USER': 'alejandroniro',
+        'PASSWORD': '27868071',
+        'HOST': 'localhost',  # O el host de tu servidor MySQL
+        'PORT': '3306',       # El puerto de tu servidor MySQL
     }
 }
 

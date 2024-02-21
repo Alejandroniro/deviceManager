@@ -1,0 +1,12 @@
+<!-- Auth_form.html -->
+
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <h2>{% if form.instance.pk %}Update{% else %}Create{% endif %} Auth</h2>
+  <form method="post" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+  </form>
+{% endblock %}

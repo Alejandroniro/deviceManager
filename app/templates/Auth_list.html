@@ -1,0 +1,12 @@
+<!-- Auth_list.html -->
+
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <h2>Auth List</h2>
+  <ul>
+    {% for auth in object_list %}
+      <li>{{ auth.email }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

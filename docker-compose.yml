@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: 'deviceManager'
+      MYSQL_USER: 'alejandroniro'
+      MYSQL_PASSWORD: '27868071'
+      MYSQL_ROOT_PASSWORD: 'rootPassword'
