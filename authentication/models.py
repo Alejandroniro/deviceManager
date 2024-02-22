@@ -9,9 +9,9 @@ class Device(models.Model):
         return self.name
 
 
-class DeviceManager(models.Model):
-    execution_date = models.DateField(auto_now_add=True)
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+class DeviceExecution(models.Model):
+    execution_date = models.DateTimeField(auto_now_add=True)
+    device = models.ForeignKey(Device, on_delete=models.CASCADE, db_index=True)
     was_successful = models.BooleanField()
     total_success_count = models.PositiveIntegerField(default=0)
     total_failure_count = models.PositiveIntegerField(default=0)

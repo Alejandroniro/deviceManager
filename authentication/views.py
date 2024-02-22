@@ -1,21 +1,28 @@
-from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 import json
-import subprocess
+from django.shortcuts import get_object_or_404
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, DeviceCreationForm
-from django.shortcuts import render, get_object_or_404
-from .models import Device, DeviceManager
+from .models import Device, DeviceExecution
 from .utils import ping_device
 from django.utils import timezone
 
 
-
 @csrf_exempt
 def signup(request):
+    """
+    View para manejar el registro de usuarios.
+
+    Método:
+    - POST: Se espera un JSON con datos de usuario para el registro.
+
+    Respuestas:
+    - Success: Usuario registrado correctamente.
+    - Error: Fallo en la validación o el email ya existe.
+    """
     if request.method == "POST":
         try:
             data = json.loads(request.body.decode("utf-8"))
@@ -42,6 +49,16 @@ def signup(request):
 
 @csrf_exempt
 def signin(request):
+    """
+    View para manejar la autenticación de usuarios.
+
+    Método:
+    - POST: Se espera un JSON con credenciales de usuario para el inicio de sesión.
+
+    Respuestas:
+    - Success: Inicio de sesión exitoso con el token CSRF.
+    - Error: Fallo en la validación o credenciales incorrectas.
+    """
     if request.method == "POST":
         try:
             data = json.loads(request.body.decode("utf-8"))
@@ -77,8 +94,17 @@ def signin(request):
     return JsonResponse({"error": "Invalid request method"})
 
 
-# View para obtener la lista de dispositivos
 def device_list(request):
+    """
+    View para obtener la lista de dispositivos.
+
+    Método:
+    - GET: Devuelve una lista de dispositivos en formato JSON.
+
+    Respuestas:
+    - Success: Lista de dispositivos.
+    - Error: Método de solicitud no válido.
+    """
     if request.method == "GET":
         devices = Device.objects.all()
         data = [
@@ -90,8 +116,17 @@ def device_list(request):
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
 
-# View para obtener detalles de un dispositivo
 def device_detail(request, device_id):
+    """
+    View para obtener detalles de un dispositivo específico.
+
+    Método:
+    - GET: Devuelve los detalles de un dispositivo en formato JSON.
+
+    Respuestas:
+    - Success: Detalles del dispositivo.
+    - Error: Dispositivo no encontrado o método de solicitud no válido.
+    """
     device = (
         Device.objects.filter(pk=device_id).values("id", "name", "ip_address").first()
     )
@@ -102,8 +137,18 @@ def device_detail(request, device_id):
         return JsonResponse({"success": False, "errors": "Device not found"})
 
 
-# View para crear un nuevo dispositivo
+@csrf_protect
 def device_create(request):
+    """
+    View para crear un nuevo dispositivo.
+
+    Método:
+    - POST: Se espera un JSON con datos para crear un dispositivo.
+
+    Respuestas:
+    - Success: Dispositivo creado correctamente.
+    - Error: Fallo en la validación o método de solicitud no válido.
+    """
     if request.method == "POST":
         try:
             data = json.loads(request.body.decode("utf-8"))
@@ -121,8 +166,18 @@ def device_create(request):
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
 
-# View para actualizar un dispositivo existente
+@csrf_protect
 def device_update(request, device_id):
+    """
+    View para actualizar un dispositivo existente.
+
+    Método:
+    - PUT: Se espera un JSON con datos para actualizar un dispositivo existente.
+
+    Respuestas:
+    - Success: Dispositivo actualizado correctamente.
+    - Error: Fallo en la validación, dispositivo no encontrado o método de solicitud no válido.
+    """
     device = get_object_or_404(Device, pk=device_id)
 
     if request.method == "PUT":
@@ -142,8 +197,18 @@ def device_update(request, device_id):
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
 
-# View para eliminar un dispositivo
+@csrf_protect
 def device_delete(request, device_id):
+    """
+    View para eliminar un dispositivo.
+
+    Método:
+    - DELETE: Elimina un dispositivo existente.
+
+    Respuestas:
+    - Success: Dispositivo eliminado correctamente.
+    - Error: Dispositivo no encontrado o método de solicitud no válido.
+    """
     device = get_object_or_404(Device, pk=device_id)
 
     if request.method == "DELETE":
@@ -153,71 +218,91 @@ def device_delete(request, device_id):
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
 
-def device_manager_list(request):
+def device_execution_list(request):
+    """
+    View para obtener la lista de ejecuciones de dispositivos.
+
+    Método:
+    - GET: Devuelve una lista de ejecuciones de dispositivos en formato JSON.
+
+    Respuestas:
+    - Success: Lista de ejecuciones de dispositivos.
+    - Error: Método de solicitud no válido.
+    """
     if request.method == "GET":
-        device_managers = DeviceManager.objects.all()
+        device_executions = DeviceExecution.objects.all()
         data = [
             {
-                "id": manager.id,
-                "execution_date": manager.execution_date,
-                "device_id": manager.device.id,
-                "was_successful": manager.was_successful,
+                "id": execution.id,
+                "execution_date": execution.execution_date,
+                "device_id": execution.device.id,
+                "was_successful": execution.was_successful,
             }
-            for manager in device_managers
+            for execution in device_executions
         ]
         return JsonResponse({"success": True, "data": data})
     else:
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
 
-def device_manager_detail(request, device_manager_id):
-    device_manager = get_object_or_404(DeviceManager, pk=device_manager_id)
+def device_execution_detail(request, device_execution_id):
+    """
+    View para obtener detalles de una ejecución de dispositivo específica.
+
+    Método:
+    - GET: Devuelve los detalles de una ejecución de dispositivo en formato JSON.
+
+    Respuestas:
+    - Success: Detalles de la ejecución de dispositivo.
+    - Error: Ejecución de dispositivo no encontrada o método de solicitud no válido.
+    """
+    device_execution = get_object_or_404(DeviceExecution, pk=device_execution_id)
     data = {
-        "id": device_manager.id,
-        "execution_date": device_manager.execution_date,
-        "device_id": device_manager.device.id,
-        "was_successful": device_manager.was_successful,
+        "id": device_execution.id,
+        "execution_date": device_execution.execution_date,
+        "device_id": device_execution.device.id,
+        "was_successful": device_execution.was_successful,
     }
     return JsonResponse({"success": True, "data": data})
 
 
-def device_manager_ping(request, device_id):
+@csrf_protect
+def device_execution_ping(request, device_id):
+    """
+    View para realizar un ping a un dispositivo y registrar la ejecución.
+
+    Método:
+    - POST: Realiza un ping al dispositivo y registra la ejecución.
+
+    Respuestas:
+    - Success: Ping realizado correctamente.
+    - Error: Dispositivo no encontrado, error en el ping o método de solicitud no válido.
+    """
     try:
         device = get_object_or_404(Device, id=device_id)
-
-        # Realizar el ping utilizando la dirección IP del dispositivo
         ping_result = ping_device(device.ip_address)
 
-        # Crear un nuevo objeto DeviceManager y actualizar los campos estadísticos
-        device_manager = DeviceManager.objects.create(
-            execution_date=timezone.now().date(),
-            device=device,
-            was_successful=ping_result
+        device_execution = DeviceExecution.objects.create(
+            execution_date=timezone.now(), device=device, was_successful=ping_result
         )
 
-        # Actualizar estadísticas globales en DeviceManager
         if ping_result:
-            device_manager.total_success_count = 1
-            device_manager.historical_success_count += 1
+            device_execution.total_success_count += 1
+            device_execution.historical_success_count += 1
         else:
-            device_manager.total_failure_count = 1
-            device_manager.historical_failure_count += 1
+            device_execution.total_failure_count += 1
+            device_execution.historical_failure_count += 1
 
-        device_manager.save()
+        device_execution.save()
 
-        return JsonResponse({"success": f"Ping for Device {device_id} was successful", "ping_result": ping_result})
+        return JsonResponse(
+            {
+                "success": f"Ping for Device {device_id} was successful",
+                "ping_result": ping_result,
+            }
+        )
 
+    except Device.DoesNotExist:
+        return JsonResponse({"error": f"Device with ID {device_id} does not exist"})
     except Exception as e:
         return JsonResponse({"error": str(e), "device_id": device_id})
-
-
-def device_manager_delete(request, device_manager_id):
-    device_manager = get_object_or_404(DeviceManager, pk=device_manager_id)
-
-    if request.method == "DELETE":
-        device_manager.delete()
-        return JsonResponse(
-            {"success": True, "message": "DeviceManager deleted successfully"}
-        )
-    else:
-        return JsonResponse({"success": False, "errors": "Invalid request method"})
