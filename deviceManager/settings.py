@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'authentication',
+    'drf_yasg',
+    'app',
 ]
 
 MIDDLEWARE = [
@@ -53,9 +54,6 @@ MIDDLEWARE = [
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
-
-LOGIN_URL = 'auth_login'  # Ajusta la URL de inicio de sesión según tu configuración
-LOGIN_REDIRECT_URL = 'auth_dashboard'  # Ajusta la URL de redirección después del inicio de sesión
 
 ROOT_URLCONF = 'deviceManager.urls'
 
@@ -137,3 +135,4 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

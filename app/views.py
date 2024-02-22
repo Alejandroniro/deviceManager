@@ -6,11 +6,13 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt
 import json
 from django.shortcuts import get_object_or_404
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, DeviceCreationForm
-from .models import Device, DeviceExecution
+from django.contrib.auth.models import User
+from .models import Device, Device_execution
 from .utils import ping_device
 from django.utils import timezone
+from rest_framework.decorators import api_view
 
-
+@api_view(['POST'])
 @csrf_exempt
 def signup(request):
     """
@@ -25,9 +27,8 @@ def signup(request):
     """
     if request.method == "POST":
         try:
-            data = json.loads(request.body.decode("utf-8"))
 
-            form = CustomUserCreationForm(data)
+            form = CustomUserCreationForm(request.data)
 
             if form.is_valid():
                 user = form.save()
@@ -46,7 +47,7 @@ def signup(request):
 
     return JsonResponse({"error": "Invalid request method"})
 
-
+@api_view(['POST'])
 @csrf_exempt
 def signin(request):
     """
@@ -93,7 +94,7 @@ def signin(request):
 
     return JsonResponse({"error": "Invalid request method"})
 
-
+@api_view(['GET'])
 def device_list(request):
     """
     View para obtener la lista de dispositivos.
@@ -115,7 +116,7 @@ def device_list(request):
     else:
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
-
+@api_view(['GET'])
 def device_detail(request, device_id):
     """
     View para obtener detalles de un dispositivo específico.
@@ -134,9 +135,9 @@ def device_detail(request, device_id):
     if device:
         return JsonResponse({"success": True, "data": device})
     else:
-        return JsonResponse({"success": False, "errors": "Device not found"})
+        return JsonResponse({"success": False, "errors": "device not found"})
 
-
+@api_view(['POST'])
 @csrf_protect
 def device_create(request):
     """
@@ -151,12 +152,11 @@ def device_create(request):
     """
     if request.method == "POST":
         try:
-            data = json.loads(request.body.decode("utf-8"))
-            form = DeviceCreationForm(data)
+            form = DeviceCreationForm(request.data)
             if form.is_valid():
                 device = form.save()
                 return JsonResponse(
-                    {"success": True, "message": "Device created successfully"}
+                    {"success": True, "message": "device created successfully"}
                 )
             else:
                 return JsonResponse({"success": False, "errors": form.errors})
@@ -165,7 +165,7 @@ def device_create(request):
     else:
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
-
+@api_view(['PUT'])
 @csrf_protect
 def device_update(request, device_id):
     """
@@ -178,12 +178,12 @@ def device_update(request, device_id):
     - Success: Dispositivo actualizado correctamente.
     - Error: Fallo en la validación, dispositivo no encontrado o método de solicitud no válido.
     """
-    device = get_object_or_404(Device, pk=device_id)
+    try:
+        device = get_object_or_404(Device, pk=device_id)
 
-    if request.method == "PUT":
-        try:
-            data = json.loads(request.body.decode("utf-8"))
-            form = DeviceCreationForm(data, instance=device)
+        if request.method == "PUT":
+            form = DeviceCreationForm(request.data, instance=device)
+
             if form.is_valid():
                 form.save()
                 return JsonResponse(
@@ -191,12 +191,16 @@ def device_update(request, device_id):
                 )
             else:
                 return JsonResponse({"success": False, "errors": form.errors})
-        except json.JSONDecodeError:
-            return JsonResponse({"success": False, "errors": "Invalid JSON data"})
-    else:
-        return JsonResponse({"success": False, "errors": "Invalid request method"})
+    except device.DoesNotExist:
+        return JsonResponse({"error": f"Device with ID {device_id} does not exist"})
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "errors": "Invalid JSON data"})
+    except Exception as e:
+        return JsonResponse({"error": str(e), "device_id": device_id})
 
+    return JsonResponse({"success": False, "errors": "Invalid request method"})
 
+@api_view(['DELETE'])
 @csrf_protect
 def device_delete(request, device_id):
     """
@@ -212,17 +216,17 @@ def device_delete(request, device_id):
     device = get_object_or_404(Device, pk=device_id)
 
     if request.method == "DELETE":
-        has_executions = DeviceExecution.objects.filter(device=device).exists()
+        has_executions = Device_execution.objects.filter(device=device).exists()
 
         if has_executions:
-            return JsonResponse({"success": False, "errors": "Device has associated ping executions. Cannot delete."})
+            return JsonResponse({"success": False, "errors": "device has associated ping executions. Cannot delete."})
 
         device.delete()
-        return JsonResponse({"success": True, "message": "Device deleted successfully"})
+        return JsonResponse({"success": True, "message": "device deleted successfully"})
     else:
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
-
+@api_view(['GET'])
 def device_execution_list(request):
     """
     View para obtener la lista de ejecuciones de dispositivos.
@@ -235,7 +239,7 @@ def device_execution_list(request):
     - Error: Método de solicitud no válido.
     """
     if request.method == "GET":
-        device_executions = DeviceExecution.objects.all()
+        device_executions = Device_execution.objects.all()
         data = [
             {
                 "id": execution.id,
@@ -249,7 +253,7 @@ def device_execution_list(request):
     else:
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
-
+@api_view(['GET'])
 def device_execution_detail(request, device_execution_id):
     """
     View para obtener detalles de una ejecución de dispositivo específica.
@@ -261,7 +265,7 @@ def device_execution_detail(request, device_execution_id):
     - Success: Detalles de la ejecución de dispositivo.
     - Error: Ejecución de dispositivo no encontrada o método de solicitud no válido.
     """
-    device_execution = get_object_or_404(DeviceExecution, pk=device_execution_id)
+    device_execution = get_object_or_404(device_execution, pk=device_execution_id)
     data = {
         "id": device_execution.id,
         "execution_date": device_execution.execution_date,
@@ -270,7 +274,7 @@ def device_execution_detail(request, device_execution_id):
     }
     return JsonResponse({"success": True, "data": data})
 
-
+@api_view(['POST'])
 @csrf_protect
 def device_execution_ping(request, device_id):
     """
@@ -284,25 +288,25 @@ def device_execution_ping(request, device_id):
     - Error: Dispositivo no encontrado, error en el ping o método de solicitud no válido.
     """
     try:
-        device = get_object_or_404(Device, id=device_id)
-        ping_result = ping_device(device.ip_address)
+        device_instance = get_object_or_404(Device, id=device_id)
+        ping_result = ping_device(device_instance.ip_address)
 
-        device_execution = DeviceExecution.objects.create(
-            execution_date=timezone.now(), device=device, was_successful=ping_result
+        device_execution_instance = Device_execution.objects.create(
+            execution_date=timezone.now(), device=device_instance, was_successful=ping_result
         )
 
         if ping_result:
-            device_execution.total_success_count += 1
-            device_execution.historical_success_count += 1
+            device_execution_instance.total_success_count += 1
+            device_execution_instance.historical_success_count += 1
         else:
-            device_execution.total_failure_count += 1
-            device_execution.historical_failure_count += 1
+            device_execution_instance.total_failure_count += 1
+            device_execution_instance.historical_failure_count += 1
 
-        device_execution.save()
+        device_execution_instance.save()
 
         return JsonResponse(
             {
-                "success": f"Ping for Device {device_id} was successful",
+                "success": f"Ping for device {device_id} was successful",
                 "ping_result": ping_result,
             }
         )

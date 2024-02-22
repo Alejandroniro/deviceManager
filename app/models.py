@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 class Device(models.Model):
     name = models.CharField(max_length=255)
@@ -9,7 +8,7 @@ class Device(models.Model):
         return self.name
 
 
-class DeviceExecution(models.Model):
+class Device_execution(models.Model):
     execution_date = models.DateTimeField(auto_now_add=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE, db_index=True)
     was_successful = models.BooleanField()
