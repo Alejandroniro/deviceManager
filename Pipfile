@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 django = "*"
+drf-yasg = "*"
+mysql = "*"
 
 [dev-packages]
 
