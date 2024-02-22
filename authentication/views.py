@@ -207,11 +207,16 @@ def device_delete(request, device_id):
 
     Respuestas:
     - Success: Dispositivo eliminado correctamente.
-    - Error: Dispositivo no encontrado o método de solicitud no válido.
+    - Error: Dispositivo no encontrado, ejecución de prueba de ping existente, o método de solicitud no válido.
     """
     device = get_object_or_404(Device, pk=device_id)
 
     if request.method == "DELETE":
+        has_executions = DeviceExecution.objects.filter(device=device).exists()
+
+        if has_executions:
+            return JsonResponse({"success": False, "errors": "Device has associated ping executions. Cannot delete."})
+
         device.delete()
         return JsonResponse({"success": True, "message": "Device deleted successfully"})
     else:
