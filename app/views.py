@@ -11,7 +11,20 @@ from .models import Device, Device_execution
 from .utils import ping_device
 from django.utils import timezone
 from rest_framework.decorators import api_view
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
+@swagger_auto_schema(
+    methods=['post'],
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'email': openapi.Schema(type=openapi.TYPE_STRING, description='Descripción del parámetro 1.'),
+            'password1': openapi.Schema(type=openapi.TYPE_STRING, description='Descripción del parámetro 1.'),
+            'password2': openapi.Schema(type=openapi.TYPE_STRING, description='Descripción del parámetro 1.')
+        }
+    )
+)
 @api_view(['POST'])
 @csrf_exempt
 def signup(request):
