@@ -25,4 +25,4 @@ services:
       - MYSQL_PASSWORD=27868071
       - MYSQL_ROOT_PASSWORD=rootPassword
     ports:
-      - "3306:3306"
+      - "3307:3306"
