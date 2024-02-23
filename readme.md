@@ -13,7 +13,7 @@ Este proyecto Django utiliza el framework Django REST Framework (DRF) para propo
 
 ### Autenticación en Swagger
 
-#### Al acceder a Swagger, se genera automáticamente una autenticación por defecto para probar los endpoints. Si intentas probar los endpoints con herramientas como Insomnia o Postman, deberás crear una sesión e iniciar sesión para obtener el token de autenticación.
+NOTA: Al acceder a Swagger, se genera automáticamente una autenticación por defecto para probar los endpoints. Si intentas probar los endpoints con herramientas como Insomnia o Postman, deberás crear una sesión e iniciar sesión para obtener el token de autenticación.
 
 ### Autenticación de Usuarios
 
