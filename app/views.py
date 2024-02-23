@@ -61,8 +61,12 @@ def signup(request):
             else:
                 return JsonResponse({"error": form.errors}, status=400)
 
-        except IntegrityError:
-            return JsonResponse({"error": "Email ya existe"}, status=400)
+        except IntegrityError as e:
+            # Agrega un bloque específico para ValidationError
+            if 'unique constraint' in str(e):
+                return JsonResponse({"error": "Email ya existe"}, status=400)
+            else:
+                return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse({"error": "Método de solicitud no válido"}, status=405)
 
@@ -99,9 +103,8 @@ def signin(request):
     """
     if request.method == "POST":
         try:
-            data = json.loads(request.body.decode("utf-8"))
 
-            form = CustomAuthenticationForm(data=data)
+            form = CustomAuthenticationForm(data=request.data)
 
             if form.is_valid():
                 user = authenticate(
@@ -391,12 +394,12 @@ def device_execution_detail(request, device_execution_id):
     - Success: Detalles de la ejecución de dispositivo.
     - Error: Ejecución de dispositivo no encontrada o método de solicitud no válido.
     """
-    device_execution = get_object_or_404(device_execution, pk=device_execution_id)
+    device_execution_instance = get_object_or_404(Device_execution, pk=device_execution_id)
     data = {
-        "id": device_execution.id,
-        "execution_date": device_execution.execution_date,
-        "device_id": device_execution.device.id,
-        "was_successful": device_execution.was_successful,
+        "id": device_execution_instance.id,
+        "execution_date": device_execution_instance.execution_date,
+        "device_id": device_execution_instance.device.id,
+        "was_successful": device_execution_instance.was_successful,
     }
     return JsonResponse({"success": True, "data": data})
 
@@ -405,12 +408,7 @@ def device_execution_detail(request, device_execution_id):
     methods=['post'],
     operation_summary="Realizar ping a un dispositivo y registrar la ejecución.",
     operation_description="Realiza un ping al dispositivo identificado por su ID y registra los resultados de la ejecución.",
-    request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'device_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID del dispositivo objetivo.'),
-        }
-    ),
+    
     responses={
         200: openapi.Response(description="Ping realizado correctamente."),
         404: openapi.Response(description="Dispositivo no encontrado."),

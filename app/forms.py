@@ -12,6 +12,16 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ["email", "password1", "password2"]
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']  # Usar el email como email
+        user.username = self.cleaned_data['email']  # Usar el email como username
+        if commit:
+            user.save()
+        return user
+
+
+
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(
