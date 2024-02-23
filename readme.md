@@ -40,34 +40,34 @@ curl -X POST http://tu-servidor/api/signin/ -d '{"username": "nombre_de_usuario"
 
 
 
-##### Obtén una lista de todos los dispositivos registrados.
+Obtén una lista de todos los dispositivos registrados.
 ```
 curl http://tu-servidor/api/devices/
 ```
 #### Detalles de un Dispositivo
 
-##### Obtén detalles de un dispositivo específico por su ID.
+Obtén detalles de un dispositivo específico por su ID.
 
 ```
 curl http://tu-servidor/api/devices/{device_id}/
 ```
 #### Crear un Nuevo Dispositivo
 
-##### Crea un nuevo dispositivo enviando una solicitud POST con un JSON que contenga los detalles del dispositivo.
+Crea un nuevo dispositivo enviando una solicitud POST con un JSON que contenga los detalles del dispositivo.
 
 ```
 curl -X POST http://tu-servidor/api/devices/create/ -d '{"name": "Nuevo Dispositivo", "ip_address": "192.168.1.1"}'
 ```
 #### Actualizar un Dispositivo
 
-##### Actualiza un dispositivo existente enviando una solicitud PUT con un JSON que contenga los datos actualizados.
+Actualiza un dispositivo existente enviando una solicitud PUT con un JSON que contenga los datos actualizados.
 
 ```
 curl -X PUT http://tu-servidor/api/devices/{device_id}/update/ -d '{"name": "Nuevo Nombre", "ip_address": "192.168.1.2"}'
 ```
 #### Eliminar un Dispositivo
 
-##### Elimina un dispositivo existente por su ID.
+Elimina un dispositivo existente por su ID.
 
 ```
 curl -X DELETE http://tu-servidor/api/devices/{device_id}/delete/
@@ -76,7 +76,7 @@ curl -X DELETE http://tu-servidor/api/devices/{device_id}/delete/
 ## Ejecuciones de Dispositivos
 ### Lista de Ejecuciones
 
-#### Obtén una lista de todas las ejecuciones de dispositivos registradas.
+Obtén una lista de todas las ejecuciones de dispositivos registradas.
 
 ```
 
@@ -84,14 +84,14 @@ curl http://tu-servidor/api/device-executions/
 ```
 #### Detalles de una Ejecución
 
-##### Obtén detalles de una ejecución de dispositivo específica por su ID.
+Obtén detalles de una ejecución de dispositivo específica por su ID.
 
 ```
 curl http://tu-servidor/api/device-executions/{execution_id}/
 ```
 #### Realizar Ping a un Dispositivo
 
-##### Realiza un ping a un dispositivo por su ID y registra los resultados de la ejecución.
+Realiza un ping a un dispositivo por su ID y registra los resultados de la ejecución.
 
 ```
 curl -X POST http://tu-servidor/api/devices/{device_id}/ping/
@@ -99,11 +99,11 @@ curl -X POST http://tu-servidor/api/devices/{device_id}/ping/
 
 ## Documentación con Swagger
 
-#### La documentación detallada de la API se encuentra disponible en Swagger. Accede a http://tu-servidor/swagger/ para explorar los endpoints y realizar pruebas interactivas.
+La documentación detallada de la API se encuentra disponible en Swagger. Accede a http://tu-servidor/swagger/ para explorar los endpoints y realizar pruebas interactivas.
 
 ## Protección CSRF
 
-#### Se ha implementado protección CSRF en algunos endpoints para garantizar la seguridad de las solicitudes.
+Se ha implementado protección CSRF en algunos endpoints para garantizar la seguridad de las solicitudes.
 
 ## Cómo Iniciar el Proyecto
 
@@ -120,5 +120,5 @@ curl -X POST http://tu-servidor/api/devices/{device_id}/ping/
     run python manage.py runserver.
 
 
-##### Este README.md incluye instrucciones para instalar las dependencias con pipenv y algunos comandos actualizados. Asegúrate de tener pipenv instalado antes de seguir las instrucciones.
+Este README.md incluye instrucciones para instalar las dependencias con pipenv y algunos comandos actualizados. Asegúrate de tener pipenv instalado antes de seguir las instrucciones.
 
