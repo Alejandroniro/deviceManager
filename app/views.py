@@ -388,10 +388,10 @@ def device_delete(request, device_id):
 
 @swagger_auto_schema(
     methods=["get"],
-    operation_summary="Obtener la lista de ejecuciones de dispositivos.",
-    operation_description="Devuelve una lista de ejecuciones de dispositivos en formato JSON.",
+    operation_summary="Obtener las metricas de los dispositivos a quienes se les hizo ping.",
+    operation_description="Devuelve una lista de metricas de dispositivos en formato JSON.",
     responses={
-        200: openapi.Response(description="Lista de ejecuciones de dispositivos."),
+        200: openapi.Response(description="Lista de las metricas de dispositivos."),
         400: openapi.Response(description="Método de solicitud no válido."),
     },
 )
@@ -529,3 +529,68 @@ def device_execution_ping(request, device_id):
         )
     except Exception as e:
         return JsonResponse({"error": str(e), "device_id": device_id}, status=400)
+    
+@swagger_auto_schema(
+    methods=["post"],
+    operation_summary="Realizar ping a todos los dispositivos y registrar las ejecuciones.",
+    operation_description="Realiza un ping a todos los dispositivos registrados y registra los resultados de las ejecuciones.",
+    responses={
+        200: openapi.Response(description="Pings realizados correctamente."),
+        400: openapi.Response(description="Error en los pings o método de solicitud no válido."),
+    },
+)
+@api_view(["POST"])
+@csrf_protect
+def device_execution_ping_all(request):
+    """
+    View para realizar ping a todos los dispositivos y registrar las ejecuciones.
+
+    Método:
+    - POST: Realiza ping a todos los dispositivos y registra las ejecuciones.
+
+    Respuestas:
+    - Success: Pings realizados correctamente.
+    - Error: Error en los pings o método de solicitud no válido.
+    """
+    try:
+        # Obtiene todos los dispositivos registrados
+        devices = Device.objects.all()
+
+        # Diccionario para mantener estadísticas por dispositivo
+        device_statistics = {}
+
+        for device_instance in devices:
+            ping_result = ping_device(device_instance.ip_address)
+
+            # Si el dispositivo aún no está en el diccionario, inicialízalo
+            if device_instance.id not in device_statistics:
+                device_statistics[device_instance.id] = {
+                    "device_name": device_instance.name,
+                    "total_success_count": 0,
+                    "total_failure_count": 0,
+                }
+
+            # Actualiza las estadísticas basadas en el resultado del ping
+            if ping_result["success"]:
+                device_statistics[device_instance.id]["total_success_count"] += 1
+            else:
+                device_statistics[device_instance.id]["total_failure_count"] += 1
+
+            # Registra las ejecuciones en la base de datos
+            execution_date = timezone.now()
+            Device_execution.objects.create(
+                execution_date=execution_date,
+                device_id=device_instance.id,
+                was_successful=ping_result["success"],
+                total_success_count=device_statistics[device_instance.id]["total_success_count"],
+                total_failure_count=device_statistics[device_instance.id]["total_failure_count"],
+                historical_success_count=device_statistics[device_instance.id]["total_success_count"],
+                historical_failure_count=device_statistics[device_instance.id]["total_failure_count"],
+            )
+
+        return JsonResponse(
+            {"success": "Pings for all devices were successful", "ping_results": device_statistics}
+        )
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)

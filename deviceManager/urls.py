@@ -28,9 +28,10 @@ urlpatterns = [
     path('device/<int:device_id>/update/', views.device_update, name='device_update'),
     path('device/<int:device_id>/delete/', views.device_delete, name='device_delete'),
 
-    path('device_execution/', views.device_execution_list, name='device_execution_list'),
+    path('device_execution/metrics', views.device_execution_list, name='device_execution_list'),
     path('device_execution/<int:device_execution_id>/', views.device_execution_detail, name='device_execution_detail'),
-    path('device_execution/<int:device_id>/ping/', views.device_execution_ping, name='device_execution_ping'),
+    path('device_execution/ping/<int:device_id>/', views.device_execution_ping, name='device_execution_ping'),
+    path('device_execution/ping/all/', views.device_execution_ping_all, name='device_execution_ping'),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
