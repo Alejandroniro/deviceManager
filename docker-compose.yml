@@ -1,28 +1,44 @@
-version: '3'
+version: '3.8'
 
 services:
   web:
     build: .
+    command: ["pipenv", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+    
     ports:
       - "8000:8000"
     depends_on:
       - db
-    environment:
-      - DB_NAME=deviceManager
-      - DB_USER=alejandroniro
-      - DB_PASSWORD=27868071
-      - DB_HOST=db  # Nombre del servicio del contenedor MySQL
-      - DB_PORT=3306
-    command: bash -c "pipenv run python manage.py migrate && pipenv run python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app  # Monta el código en el contenedor
+    
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: db
+      DB_PORT: ${DB_PORT}
 
   db:
-    image: mysql:latest
+    image: mysql:8.3.0
     environment:
-      - MYSQL_DATABASE=deviceManager
-      - MYSQL_USER=alejandroniro
-      - MYSQL_PASSWORD=27868071
-      - MYSQL_ROOT_PASSWORD=rootPassword
-    ports:
-      - "3307:3306"
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_HOST: db
+      MYSQL_PORT: ${DB_PORT}
+
+  migrate:
+    build: .
+    command: ["pipenv", "run", "python", "manage.py", "migrate"]
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: db
+      DB_PORT: ${DB_PORT}

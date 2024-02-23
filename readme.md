@@ -12,7 +12,6 @@ Este proyecto Django utiliza el framework Django REST Framework (DRF) para propo
 6. [Documentación con Swagger](#documentación-con-swagger)
 7. [Protección CSRF](#protección-csrf)
 
-
 ## Cómo Iniciar el Proyecto
 
 1. Clona este repositorio.
@@ -23,24 +22,7 @@ Este proyecto Django utiliza el framework Django REST Framework (DRF) para propo
 
 4. Instala las dependencias con `pipenv install`.
 
-## Cómo Iniciar el Proyecto
-
-1. Clona este repositorio.
-
-2. Instala `pipenv` con `pip install pipenv` (asegúrate de tener Python 3.11 instalado).
-
-3. Activa el entorno virtual con `pipenv shell`.
-
-4. Instala las dependencias con `pipenv install`.
-
-5. Configura la variable de entorno para el host de la base de datos local:
-    ```bash
-    export DB_HOST=localhost
-    ```
-
-6. Realiza las migraciones con `pipenv run python manage.py migrate`.
-
-7. Inicia el servidor de desarrollo con `pipenv run python manage.py runserver`.
+5. Configura las variables de entorno para la base de datos local
 
 6. Realiza las migraciones con `pipenv run python manage.py migrate`.
 
@@ -116,22 +98,32 @@ Obtén una lista de todas las ejecuciones de dispositivos registradas.
 
 ```
 
-curl http://tu-servidor/api/device-executions/
+curl http://tu-servidor/api/device_execution/metrics/
 ```
 #### Detalles de una Ejecución
 
 Obtén detalles de una ejecución de dispositivo específica por su ID.
 
 ```
-curl http://tu-servidor/api/device-executions/{execution_id}/
+curl http://tu-servidor/api/device_execution/<int:device_execution_id>/
+
 ```
 #### Realizar Ping a un Dispositivo
 
 Realiza un ping a un dispositivo por su ID y registra los resultados de la ejecución.
 
 ```
-curl -X POST http://tu-servidor/api/devices/{device_id}/ping/
+curl -X POST http://tu-servidor/api/device_execution/ping/<int:device_id>/
+
 ```
+#### Realizar Ping a Todos los Dispositivos
+
+Realiza un ping a todos los dispositivos y registra los resultados de las ejecuciones.
+```
+curl -X POST http://tu-servidor/api/device_execution/ping/all/
+
+```
+
 
 ## Documentación con Swagger
 
