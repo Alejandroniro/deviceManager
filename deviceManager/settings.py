@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-g1$&o$bag(^*fo=l0@e5ecto$^w95d=wo7@=r(l3rq7h-+r(-4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -87,8 +87,9 @@ DATABASES = {
         'NAME': 'deviceManager',
         'USER': 'alejandroniro',
         'PASSWORD': '27868071',
-        'HOST': 'localhost',  # O el host de tu servidor MySQL
-        'PORT': '3306',       # El puerto de tu servidor MySQL
+        'HOST': 'db',  # O el host de tu servidor MySQL
+        'PORT': '3307',       # El puerto de tu servidor MySQL
+        'OPTIONS': {'auth_plugin': 'mysql_native_password'},
     }
 }
 

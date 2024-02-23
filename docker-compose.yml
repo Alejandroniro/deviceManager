@@ -1,16 +1,34 @@
-version: '3'
+version: '3.8'
 
 services:
-  web:
-    build: .
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
   db:
     image: mysql:latest
+    restart: always
     environment:
       MYSQL_DATABASE: 'deviceManager'
       MYSQL_USER: 'alejandroniro'
       MYSQL_PASSWORD: '27868071'
       MYSQL_ROOT_PASSWORD: 'rootPassword'
+    ports:
+      - "3307:3306"
+    networks:
+      - net_app
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    restart: always
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_started
+    networks:
+      - net_app
+
+
+    
+
+networks:
+  net_app:
+    name: net_app
