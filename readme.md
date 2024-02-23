@@ -3,13 +3,30 @@
 Este proyecto Django utiliza el framework Django REST Framework (DRF) para proporcionar endpoints que permiten la autenticación de usuarios y la gestión de dispositivos. Se incluyen funciones para registrar nuevos usuarios, iniciar sesión, así como para listar, crear, actualizar y eliminar dispositivos. Además, se implementan funciones para realizar ping a dispositivos y registrar las ejecuciones correspondientes.
 
 ## Contenido
-1. [Autenticación en Swagger](#autenticación-en-swagger)
-2. [Autenticación de Usuarios](#autenticación-de-usuarios)
-3. [Gestión de Dispositivos](#gestión-de-dispositivos)
-4. [Ejecuciones de Dispositivos](#ejecuciones-de-dispositivos)
-5. [Documentación con Swagger](#documentación-con-swagger)
-6. [Protección CSRF](#protección-csrf)
-7. [Cómo Iniciar el Proyecto](#cómo-iniciar-el-proyecto)
+
+1. [Cómo Iniciar el Proyecto](#cómo-iniciar-el-proyecto)
+2. [Autenticación en Swagger](#autenticación-en-swagger)
+3. [Autenticación de Usuarios](#autenticación-de-usuarios)
+4. [Gestión de Dispositivos](#gestión-de-dispositivos)
+5. [Ejecuciones de Dispositivos](#ejecuciones-de-dispositivos)
+6. [Documentación con Swagger](#documentación-con-swagger)
+7. [Protección CSRF](#protección-csrf)
+
+
+## Cómo Iniciar el Proyecto
+
+1. Clona este repositorio.
+
+2. Instala `pipenv` con `pip install pipenv` (asegúrate de tener Python 3.11 instalado).
+
+3. Activa el entorno virtual con `pipenv shell`.
+
+4. Instala las dependencias con `pipenv install`.
+
+5. Realiza las migraciones con `pipenv run python manage.py migrate`.
+
+6. Inicia el servidor de desarrollo con `pipenv run python manage.py runserver`.
+
 
 ### Autenticación en Swagger
 
@@ -104,21 +121,6 @@ La documentación detallada de la API se encuentra disponible en Swagger. Accede
 ## Protección CSRF
 
 Se ha implementado protección CSRF en algunos endpoints para garantizar la seguridad de las solicitudes.
-
-## Cómo Iniciar el Proyecto
-
-    Clona este repositorio.
-
-    Instala las dependencias con pipenv install
-    (asegúrate de tener pipenv instalado).
-
-    Realiza las migraciones con pipenv run python
-    manage.py migrate.
-
-    Inicia el servidor de desarrollo con pipenv
-
-    run python manage.py runserver.
-
 
 Este README.md incluye instrucciones para instalar las dependencias con pipenv y algunos comandos actualizados. Asegúrate de tener pipenv instalado antes de seguir las instrucciones.
 
