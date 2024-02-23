@@ -16,14 +16,21 @@ from drf_yasg import openapi
 
 @swagger_auto_schema(
     methods=['post'],
+    operation_summary="Manejar el registro de usuarios.",
+    operation_description="Realiza el registro de un nuevo usuario utilizando datos proporcionados en un JSON.",
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'email': openapi.Schema(type=openapi.TYPE_STRING, description='Descripción del parámetro 1.'),
-            'password1': openapi.Schema(type=openapi.TYPE_STRING, description='Descripción del parámetro 1.'),
-            'password2': openapi.Schema(type=openapi.TYPE_STRING, description='Descripción del parámetro 1.')
+            'email': openapi.Schema(type=openapi.TYPE_STRING, description='Dirección de correo electrónico del usuario.'),
+            'password1': openapi.Schema(type=openapi.TYPE_STRING, description='Contraseña para el usuario.'),
+            'password2': openapi.Schema(type=openapi.TYPE_STRING, description='Confirmación de la contraseña.'),
         }
-    )
+    ),
+    responses={
+        200: openapi.Response(description="Usuario registrado correctamente."),
+        400: openapi.Response(description="Fallo en la validación o el email ya existe."),
+        405: openapi.Response(description="Método de solicitud no válido."),
+    }
 )
 @api_view(['POST'])
 @csrf_exempt
@@ -40,7 +47,6 @@ def signup(request):
     """
     if request.method == "POST":
         try:
-
             form = CustomUserCreationForm(request.data)
 
             if form.is_valid():
@@ -53,13 +59,31 @@ def signup(request):
                 return JsonResponse(response_data)
 
             else:
-                return JsonResponse({"error": form.errors})
+                return JsonResponse({"error": form.errors}, status=400)
 
         except IntegrityError:
-            return JsonResponse({"error": "Email already exists"})
+            return JsonResponse({"error": "Email ya existe"}, status=400)
 
-    return JsonResponse({"error": "Invalid request method"})
+    return JsonResponse({"error": "Método de solicitud no válido"}, status=405)
 
+
+@swagger_auto_schema(
+    methods=['post'],
+    operation_summary="Manejar la autenticación de usuarios.",
+    operation_description="Realiza el inicio de sesión de un usuario utilizando credenciales proporcionadas en un JSON.",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'username': openapi.Schema(type=openapi.TYPE_STRING, description='Nombre de usuario o dirección de correo electrónico.'),
+            'password': openapi.Schema(type=openapi.TYPE_STRING, description='Contraseña del usuario.'),
+        }
+    ),
+    responses={
+        200: openapi.Response(description="Inicio de sesión exitoso con el token CSRF."),
+        401: openapi.Response(description="Fallo en la validación o credenciales incorrectas."),
+        400: openapi.Response(description="Datos JSON no válidos o método de solicitud no válido."),
+    }
+)
 @api_view(['POST'])
 @csrf_exempt
 def signin(request):
@@ -92,21 +116,32 @@ def signin(request):
                     csrf_token = get_token(request)
 
                     response_data = {
-                        "success": "Login successful",
+                        "success": "Inicio de sesión exitoso",
                         "csrf_token": csrf_token,
                     }
                     return JsonResponse(response_data)
                 else:
-                    return JsonResponse({"error": "Authentication failed"})
+                    return JsonResponse({"error": "Fallo en la autenticación"}, status=401)
 
             else:
-                return JsonResponse({"error": "Invalid credentials"})
+                return JsonResponse({"error": "Credenciales no válidas"}, status=401)
 
         except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON data"})
+            return JsonResponse({"error": "Datos JSON no válidos"}, status=400)
 
-    return JsonResponse({"error": "Invalid request method"})
+    return JsonResponse({"error": "Método de solicitud no válido"}, status=400)
 
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary="Obtener la lista de dispositivos.",
+    operation_description="Devuelve una lista de dispositivos en formato JSON.",
+    responses={
+        200: openapi.Response(description="Lista de dispositivos."),
+        400: openapi.Response(description="Método de solicitud no válido."),
+    }
+)
 @api_view(['GET'])
 def device_list(request):
     """
@@ -129,6 +164,17 @@ def device_list(request):
     else:
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary="Obtener detalles de un dispositivo específico.",
+    operation_description="Devuelve los detalles de un dispositivo identificado por su ID en formato JSON.",
+    responses={
+        200: openapi.Response(description="Detalles del dispositivo."),
+        404: openapi.Response(description="Dispositivo no encontrado."),
+        400: openapi.Response(description="Método de solicitud no válido."),
+    }
+)
 @api_view(['GET'])
 def device_detail(request, device_id):
     """
@@ -148,8 +194,25 @@ def device_detail(request, device_id):
     if device:
         return JsonResponse({"success": True, "data": device})
     else:
-        return JsonResponse({"success": False, "errors": "device not found"})
+        return JsonResponse({"success": False, "errors": "device not found"}, status=404)
 
+
+@swagger_auto_schema(
+    methods=['post'],
+    operation_summary="Crear un nuevo dispositivo.",
+    operation_description="Crea un nuevo dispositivo mediante un JSON con datos de creación.",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'name': openapi.Schema(type=openapi.TYPE_STRING, description='Nombre del nuevo dispositivo.'),
+            'ip_address': openapi.Schema(type=openapi.TYPE_STRING, description='Dirección IP del nuevo dispositivo.'),
+        }
+    ),
+    responses={
+        200: openapi.Response(description="Dispositivo creado correctamente."),
+        400: openapi.Response(description="Fallo en la validación o método de solicitud no válido."),
+    }
+)
 @api_view(['POST'])
 @csrf_protect
 def device_create(request):
@@ -178,6 +241,24 @@ def device_create(request):
     else:
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
+
+@swagger_auto_schema(
+    methods=['put'],
+    operation_summary="Actualizar un dispositivo existente.",
+    operation_description="Actualiza un dispositivo existente mediante un JSON con datos actualizados.",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'name': openapi.Schema(type=openapi.TYPE_STRING, description='Nuevo nombre del dispositivo.'),
+            'ip_address': openapi.Schema(type=openapi.TYPE_STRING, description='Nueva dirección IP del dispositivo.'),
+        }
+    ),
+    responses={
+        200: openapi.Response(description="Dispositivo actualizado correctamente."),
+        404: openapi.Response(description="Dispositivo no encontrado."),
+        400: openapi.Response(description="Fallo en la validación, dispositivo no encontrado o método de solicitud no válido."),
+    }
+)
 @api_view(['PUT'])
 @csrf_protect
 def device_update(request, device_id):
@@ -205,14 +286,25 @@ def device_update(request, device_id):
             else:
                 return JsonResponse({"success": False, "errors": form.errors})
     except device.DoesNotExist:
-        return JsonResponse({"error": f"Device with ID {device_id} does not exist"})
+        return JsonResponse({"error": f"Device with ID {device_id} does not exist"}, status=404)
     except json.JSONDecodeError:
-        return JsonResponse({"success": False, "errors": "Invalid JSON data"})
+        return JsonResponse({"success": False, "errors": "Invalid JSON data"}, status=404)
     except Exception as e:
-        return JsonResponse({"error": str(e), "device_id": device_id})
+        return JsonResponse({"error": str(e), "device_id": device_id}, status=404)
 
-    return JsonResponse({"success": False, "errors": "Invalid request method"})
+    return JsonResponse({"success": False, "errors": "Invalid request method"}, status=404)
 
+
+@swagger_auto_schema(
+    methods=['delete'],
+    operation_summary="Eliminar un dispositivo.",
+    operation_description="Elimina un dispositivo existente.",
+    responses={
+        200: openapi.Response(description="Dispositivo eliminado correctamente."),
+        404: openapi.Response(description="Dispositivo no encontrado."),
+        400: openapi.Response(description="Dispositivo tiene ejecuciones de prueba de ping asociadas o método de solicitud no válido."),
+    }
+)
 @api_view(['DELETE'])
 @csrf_protect
 def device_delete(request, device_id):
@@ -239,6 +331,16 @@ def device_delete(request, device_id):
     else:
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary="Obtener la lista de ejecuciones de dispositivos.",
+    operation_description="Devuelve una lista de ejecuciones de dispositivos en formato JSON.",
+    responses={
+        200: openapi.Response(description="Lista de ejecuciones de dispositivos."),
+        400: openapi.Response(description="Método de solicitud no válido."),
+    }
+)
 @api_view(['GET'])
 def device_execution_list(request):
     """
@@ -266,6 +368,17 @@ def device_execution_list(request):
     else:
         return JsonResponse({"success": False, "errors": "Invalid request method"})
 
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary="Obtener detalles de una ejecución de dispositivo específica.",
+    operation_description="Devuelve los detalles de una ejecución de dispositivo identificada por su ID en formato JSON.",
+    responses={
+        200: openapi.Response(description="Detalles de la ejecución de dispositivo."),
+        404: openapi.Response(description="Ejecución de dispositivo no encontrada."),
+        400: openapi.Response(description="Método de solicitud no válido."),
+    }
+)
 @api_view(['GET'])
 def device_execution_detail(request, device_execution_id):
     """
@@ -287,6 +400,23 @@ def device_execution_detail(request, device_execution_id):
     }
     return JsonResponse({"success": True, "data": data})
 
+
+@swagger_auto_schema(
+    methods=['post'],
+    operation_summary="Realizar ping a un dispositivo y registrar la ejecución.",
+    operation_description="Realiza un ping al dispositivo identificado por su ID y registra los resultados de la ejecución.",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'device_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID del dispositivo objetivo.'),
+        }
+    ),
+    responses={
+        200: openapi.Response(description="Ping realizado correctamente."),
+        404: openapi.Response(description="Dispositivo no encontrado."),
+        400: openapi.Response(description="Error en el ping o método de solicitud no válido."),
+    }
+)
 @api_view(['POST'])
 @csrf_protect
 def device_execution_ping(request, device_id):
@@ -325,6 +455,6 @@ def device_execution_ping(request, device_id):
         )
 
     except Device.DoesNotExist:
-        return JsonResponse({"error": f"Device with ID {device_id} does not exist"})
+        return JsonResponse({"error": f"Device with ID {device_id} does not exist"}, status=404)
     except Exception as e:
-        return JsonResponse({"error": str(e), "device_id": device_id})
+        return JsonResponse({"error": str(e), "device_id": device_id}, status=400)
