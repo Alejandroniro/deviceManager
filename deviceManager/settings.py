@@ -87,8 +87,8 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME', 'deviceManager'),
         'USER': os.environ.get('DB_USER', 'alejandroniro'),
         'PASSWORD': os.environ.get('DB_PASSWORD', '27868071'),
-        'HOST': os.environ.get('DB_HOST', 'db'),  # Nombre del servicio del contenedor Docker
-        'PORT': os.environ.get('DB_PORT', '3306'),      # El puerto de tu servidor MySQL
+        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),  # Nombre del servicio del contenedor Docker
+        'PORT': os.environ.get('DB_PORT', '3307'),      # El puerto de tu servidor MySQL
     }
 }
 

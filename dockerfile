@@ -12,6 +12,9 @@ RUN which pipenv || pip install pipenv
 # Instala las dependencias con Pipenv, incluyendo Django
 RUN pipenv install --deploy --ignore-pipfile
 
+# Instala el paquete ping (iputils-ping) necesario
+RUN apt-get update && apt-get install -y iputils-ping
+
 # Copia el contenido del directorio actual al contenedor en /app
 COPY . /app/
 
