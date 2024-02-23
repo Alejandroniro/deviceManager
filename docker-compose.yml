@@ -1,34 +1,28 @@
-version: '3.8'
+version: '3'
 
 services:
-  db:
-    image: mysql:latest
-    restart: always
-    environment:
-      MYSQL_DATABASE: 'deviceManager'
-      MYSQL_USER: 'alejandroniro'
-      MYSQL_PASSWORD: '27868071'
-      MYSQL_ROOT_PASSWORD: 'rootPassword'
-    ports:
-      - "3307:3306"
-    networks:
-      - net_app
   web:
     build: .
     ports:
       - "8000:8000"
-    restart: always
-    volumes:
-      - .:/app
     depends_on:
-      db:
-        condition: service_started
-    networks:
-      - net_app
+      - db
+    environment:
+      - DB_NAME=deviceManager
+      - DB_USER=alejandroniro
+      - DB_PASSWORD=27868071
+      - DB_HOST=db  # Nombre del servicio del contenedor MySQL
+      - DB_PORT=3306
+    command: bash -c "pipenv run python manage.py migrate && pipenv run python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app  # Monta el código en el contenedor
 
-
-    
-
-networks:
-  net_app:
-    name: net_app
+  db:
+    image: mysql:latest
+    environment:
+      - MYSQL_DATABASE=deviceManager
+      - MYSQL_USER=alejandroniro
+      - MYSQL_PASSWORD=27868071
+      - MYSQL_ROOT_PASSWORD=rootPassword
+    ports:
+      - "3306:3306"

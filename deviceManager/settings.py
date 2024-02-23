@@ -84,12 +84,11 @@ import os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'deviceManager',
-        'USER': 'alejandroniro',
-        'PASSWORD': '27868071',
-        'HOST': 'db',  # O el host de tu servidor MySQL
-        'PORT': '3307',       # El puerto de tu servidor MySQL
-        'OPTIONS': {'auth_plugin': 'mysql_native_password'},
+        'NAME': os.environ.get('DB_NAME', 'deviceManager'),
+        'USER': os.environ.get('DB_USER', 'alejandroniro'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', '27868071'),
+        'HOST': os.environ.get('DB_HOST', 'db'),  # Nombre del servicio del contenedor Docker
+        'PORT': os.environ.get('DB_PORT', '3306'),      # El puerto de tu servidor MySQL
     }
 }
 
