@@ -452,16 +452,21 @@ def device_execution_detail(request, device_execution_id):
     device_execution_instance = get_object_or_404(
         Device_execution, pk=device_execution_id
     )
+
+    # Obtén el id del dispositivo asociado
+    device_id = device_execution_instance.device.id
+
     data = {
         "id": device_execution_instance.id,
         "execution_date": device_execution_instance.execution_date,
-        "device_id": device_execution_instance.device.id,
+        "device_id": device_id,
         "was_successful": device_execution_instance.was_successful,
         "total_success_count": device_execution_instance.total_success_count,
         "total_failure_count": device_execution_instance.total_failure_count,
         "historical_success_count": device_execution_instance.historical_success_count,
         "historical_failure_count": device_execution_instance.historical_failure_count,
     }
+
     return JsonResponse({"success": True, "data": data})
 
 
@@ -497,15 +502,17 @@ def device_execution_ping(request, device_id):
         device_execution_instance = Device_execution.objects.create(
             execution_date=timezone.now(),
             device=device_instance,
-            was_successful=ping_result,
+            was_successful=ping_result["success"],
         )
 
-        if ping_result:
-            device_execution_instance.total_success_count += 1
-            device_execution_instance.historical_success_count += 1
-        else:
-            device_execution_instance.total_failure_count += 1
-            device_execution_instance.historical_failure_count += 1
+        # Actualiza las estadísticas basadas en el resultado de cada intento
+        for attempt_result in ping_result.get("attempts_result", []):
+            if attempt_result["success"]:
+                device_execution_instance.total_success_count += 1
+                device_execution_instance.historical_success_count += 1
+            else:
+                device_execution_instance.total_failure_count += 1
+                device_execution_instance.historical_failure_count += 1
 
         device_execution_instance.save()
 
