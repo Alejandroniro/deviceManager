@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -81,14 +82,17 @@ WSGI_APPLICATION = 'deviceManager.wsgi.application'
 
 import os
 
+config_file = os.path.join(BASE_DIR, ".env")
+config = config(config_file)
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'deviceManager'),
-        'USER': os.environ.get('DB_USER', 'alejandroniro'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', '27868071'),
-        'HOST': os.environ.get('DB_HOST', 'db'),  # Nombre del servicio del contenedor Docker
-        'PORT': os.environ.get('DB_PORT', '3307'),      # El puerto de tu servidor MySQL
+        'ENGINE': config('DB_ENGINE'),
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
     }
 }
 
