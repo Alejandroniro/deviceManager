@@ -23,9 +23,28 @@ Este proyecto Django utiliza el framework Django REST Framework (DRF) para propo
 
 4. Instala las dependencias con `pipenv install`.
 
-5. Realiza las migraciones con `pipenv run python manage.py migrate`.
+## Cómo Iniciar el Proyecto
 
-6. Inicia el servidor de desarrollo con `pipenv run python manage.py runserver`.
+1. Clona este repositorio.
+
+2. Instala `pipenv` con `pip install pipenv` (asegúrate de tener Python 3.11 instalado).
+
+3. Activa el entorno virtual con `pipenv shell`.
+
+4. Instala las dependencias con `pipenv install`.
+
+5. Configura la variable de entorno para el host de la base de datos local:
+    ```bash
+    export DB_HOST=localhost
+    ```
+
+6. Realiza las migraciones con `pipenv run python manage.py migrate`.
+
+7. Inicia el servidor de desarrollo con `pipenv run python manage.py runserver`.
+
+6. Realiza las migraciones con `pipenv run python manage.py migrate`.
+
+7. Inicia el servidor de desarrollo con `pipenv run python manage.py runserver`.
 
 
 ### Autenticación en Swagger
